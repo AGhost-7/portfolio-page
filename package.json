@@ -1,0 +1,15 @@
+{
+  "name": "portfolio-landing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "watchify main.js -o assets/main.js"
+  },
+  "author": "",
+  "license": "ISC"
+}

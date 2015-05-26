@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<style>
+		body {
+			margin: 0;
+		}
+		canvas {
+			height: 100%;
+			width: 100%;
+		}
+		#panel {
+			position: absolute;
+			z-index: 1;
+			background-color: white;
+			width: 400px;
+			height: 180px;
+			opacity: 0.6;
+		}
+		#inner-panel {
+			position: static;
+			padding-left: 15px;
+		}
+		p { max-width: 370px; }
+		</style>
+	</head>
+	<body>
+	<div id="panel">
+		<div id="inner-panel">
+			<h2>Jonathan Boudreau</h2>
+			<p>The site is currently under construction.</p>
+			<p>In the meantime you can take a look at
+				<a href="http://chat.jonathan-boudreau.com">NinjaChat</a>,
+				<a href="http://leaps-of-sounds.com">Leaps of Sounds</a> or take a look
+				at my other public projects on <a href="https://github.com/AGhost-7">
+				Github</a>.
+			</p>
+
+		</div>
+	</div>
+	<canvas></canvas>
+	<script src="assets/main.js"></script>
+	</body>
+</html>
