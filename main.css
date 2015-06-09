@@ -10,8 +10,8 @@ canvas {
   z-index: 1;
   background-color: rgba(255,255,255,0.9);
 
-  width: 600px;
-  height: 620px;
+  width: 660px;
+  height: 550px;
   padding: 20px;
 
   background-clip: padding;
@@ -91,8 +91,8 @@ canvas {
   position: static;
   padding: 20px;
 
-  max-width: 560px;
-  max-height: 580px;
+  max-width: 620px;
+  max-height: 560px;
 }
 
 .job-title {
