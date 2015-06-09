@@ -1,38 +1,59 @@
 <html>
 	<head>
-		<style>
-		body {
-			margin: 0;
-		}
-		canvas {
-			height: 100%;
-			width: 100%;
-		}
-		#panel {
-			position: absolute;
-			z-index: 1;
-			background-color: white;
-			width: 400px;
-			height: 180px;
-			opacity: 0.6;
-		}
-		#inner-panel {
-			position: static;
-			padding-left: 15px;
-		}
-		p { max-width: 370px; }
-		</style>
+		<link href="main.css" rel="stylesheet"/>
+		<meta charset="utf-8" />
+		<title>Jonathan Boudreau</title>
 	</head>
 	<body>
 	<div id="panel">
 		<div id="inner-panel">
-			<h2>Jonathan Boudreau</h2>
-			<p>The site is currently under construction.</p>
-			<p>In the meantime you can take a look at
-				<a href="http://chat.jonathan-boudreau.com">NinjaChat</a>,
-				<a href="http://leaps-of-sounds.com">Leaps of Sounds</a> or take a look
-				at my other public projects on <a href="https://github.com/AGhost-7">
-				Github</a>.
+			<div>Jonathan Boudreau</div>
+			<div class="job-title">~ Web Developer ~</div>
+
+			<h2 class="project">Projects</h2>
+
+			<div class="project-listing">
+				<h4>Leaps of Sounds</h4>
+				Using a canvas2d “component” that I wrote, I created a website for
+				learning musical scales. Users can create their own instruments, tunings
+				and scales. The website uses RESTful practices (http verbs, error codes,
+				etc) to handle AJAX callbacks. I also added a simple token system for
+				user logins. Database: Postgresql. Other technologies used: Grunt,
+				jQuery UI, AngularJS.
+				<div class="links-list">
+					<a href="http://leaps-of-sounds.com">Website</a>
+					<a href="">Sources</a>
+				</div>
+			</div>
+
+			<div class="project-listing">
+				<h4>Node Shop</h4>
+				Node Shop is an AngularJS/NodeJS application. The application is a mock
+				online musical instruments store. Other technologies used: Gulp, lodash,
+				Postgresql, ExpressJS and more.
+				<div class="links-list">
+					<a href="http://shop.jonathan-boudreau.com">Website</a>
+					<a href="">Sources</a>
+			</div>
+			</div>
+
+			<div class="project-listing">
+				<h4>NinjaChat</h4>
+				With Websockets, I implemented a simple chat application which uses the
+				actor model to handle concurrency. The client-side uses jQuery and
+				Bootstrap, with CoffeeScript being the language of choice this time.
+				<div class="links-list">
+					<a href="http://chat.jonathan-boudreau.com">Website</a>
+					<a href="">Sources</a>
+				</div>
+			</div>
+
+			<p>
+				Several other side projects can be found on
+				<a href="https://github.com/AGhost-7">Github</a>. I have also been a
+				long time contributor to a game server,
+				<a href="http://realmsoftrinity.com">Realms of Trinity</a>. My
+				contributions are listed <a href="http://www.realmsoftrinity.com/Forum/viewtopic.php?f=69&t=1439">here</a>.
 			</p>
 
 		</div>

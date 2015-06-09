@@ -1,0 +1,128 @@
+body {
+  margin: 0;
+}
+canvas {
+  height: 100%;
+  width: 100%;
+}
+#panel {
+  position: absolute;
+  z-index: 1;
+  background-color: rgba(255,255,255,0.9);
+
+  width: 600px;
+  height: 620px;
+  padding: 20px;
+
+  background-clip: padding;
+
+
+  animation-name: movearound;
+  animation-duration: 3s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+
+  -webkit-animation-name: movearound;
+  -webkit-animation-duration: 3s;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+
+  -moz-animation-name: movearound;
+  -moz-animation-duration: 3s;
+  -moz-animation-timing-function: linear;
+  -moz-animation-iteration-count: infinite;
+
+  -ms-animation-name: movearound;
+  -ms-animation-duration: 3s;
+  -ms-animation-timing-function: linear;
+  -ms-animation-iteration-count: infinite;
+
+}
+#panel:hover {
+  padding: 0;
+
+  border: 20px solid rgba(0, 0, 0, 0.1);
+  transition-duration: 1s;
+  transition-timing-function: ease-in;
+
+}
+
+@keyframes movearound {
+  0% { transform: translateY(0px); }
+  10% { transform: translateY(1px); }
+  30% { transform: translateY(7px); }
+  50% { transform: translateY(10px); }
+  80% { transform: translateY(3px);	}
+  90% { transform: translateY(1px); }
+  100% { transform: translateY(0px); }
+}
+
+@-webkit-keyframes movearound {
+  0% { transform: translateY(0px); }
+  10% { transform: translateY(1px); }
+  30% { transform: translateY(7px); }
+  50% { transform: translateY(10px); }
+  80% { transform: translateY(3px);	}
+  90% { transform: translateY(1px); }
+  100% { transform: translateY(0px); }
+}
+
+@-moz-keyframes movearound {
+  0% { transform: translateY(0px); }
+  10% { transform: translateY(1px); }
+  30% { transform: translateY(7px); }
+  50% { transform: translateY(10px); }
+  80% { transform: translateY(3px);	}
+  90% { transform: translateY(1px); }
+  100% { transform: translateY(0px); }
+}
+
+@-ms-keyframes movearound {
+  0% { transform: translateY(0px); }
+  10% { transform: translateY(1px); }
+  30% { transform: translateY(7px); }
+  50% { transform: translateY(10px); }
+  80% { transform: translateY(3px);	}
+  90% { transform: translateY(1px); }
+  100% { transform: translateY(0px); }
+}
+
+#inner-panel {
+  position: static;
+  padding: 20px;
+
+  max-width: 560px;
+  max-height: 580px;
+}
+
+.job-title {
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+}
+.project-listing {
+  margin-top: 10px;
+  marin-bottom: 10px;
+}
+.project-listing > h4 {
+  margin: 0;
+  padding: 2px;
+}
+.project-listing .links-list {
+  margin: 5px;
+}
+a {
+  color: rgb(200,50,50);
+}
+a:visited {
+  color: rgb(200,150,150);
+}
+.project-listing a {
+  display: block;
+
+}
+.project {
+  font-size: 20px;
+  padding: 0;
+  margin-bottom: 8px;
+}
