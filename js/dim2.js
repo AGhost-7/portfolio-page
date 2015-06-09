@@ -73,7 +73,7 @@ module.exports = {
       hPushCap = y < (graph[0].length - y) ? graph[0].length - y : y
       pushCap = wPushCap < hPushCap ? hPushCap : wPushCap;
 
-    for(push = 0; push < pushCap; push++) {
+    for(push = 0; push <= pushCap; push++) {
       // crosspoints = [xP; y], [xN; y], [x; yP], [x; yN]
       xP = x + push;
       yP = y + push;

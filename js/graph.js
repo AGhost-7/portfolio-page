@@ -25,6 +25,28 @@ function Point(x, y, isPath){
  */
 function randBool() { return (Math.random() * 2) >= 1 }
 
+// function genRandNodes_2(width, height, min, max) {
+//   var min = min ? min : Math.floor(width * height / 15) + 1;
+//   var max = max ? max : Math.floor(width * height / 14) + 1;
+//   var points = min + Math.floor(Math.random() * (max - min + 1));
+//
+//   var graph = [], nodes = [];
+//   var x, y;
+//   while(points > 0) {
+//     x = Math.floor(Math.random() * width);
+//     y = Math.floor(Math.random() * height);
+//     if(!graph[x] || !graph[x][y]) {
+//       points -= 1;
+//       graph[x] = graph[x] || [];
+//       graph[x][y] = graph[x][y] = true;
+//       nodes.push({x: x, y: y});
+//     }
+//   }
+//
+//   return nodes;
+// }
+
+
 
 /* Generates a 2 dimensional unsigned int array with random points!
  * @min is the minimum number of points.
@@ -57,7 +79,6 @@ function genRandNodes(width, height, min, max) {
 /* Find a point which is unconnected. x and y is the point of the portal.
  */
 function findUnconnected(graph, x, y) {
-  //console.log('findUnconnected: ', x, y)
   return dim2.findNearest(graph, x, y, function(p, x, y) {
     //console.log(p)
     return p.isNode && !p.isConnected;
@@ -76,39 +97,46 @@ function connectToConnected(graph, unc) {
 
   if(con === undefined) throw 'No connected point not found.';
 
-  if(randBool()) {
-    // from y, walk all the way up to the coordinate on the y axis, then
-    // walk to the connected node's x axis.
-    var inc = con.y - unc.y < 0 ? -1 : 1;
+  if(randBool()) connectFromY(graph, unc, con);
+  else connectFromX(graph, unc, con);
 
-    for(var y = unc.y; y != con.y; y += inc) {
-      graph[unc.x][y].isPath = true;
-      graph[unc.x][y].isConnected = true;
-    }
+}
 
-    inc = con.x - unc.x < 0 ? -1 : 1;
-    for(var x = unc.x; x != con.x; x += inc) {
-      graph[x][con.y].isPath = true;
-      graph[x][con.y].isConnected = true;
-    }
+/* from y, walk all the way up to the coordinate on the y axis, then
+ * walk to the connected node's x axis.
+ */
+function connectFromY(graph, unc, con) {
+  var inc = con.y - unc.y < 0 ? -1 : 1;
 
-  } else {
-    // other way around...
-    var inc = con.x - unc.x < 0 ? -1 : 1;
-    for(var x = unc.x; x != con.x; x += inc) {
-      graph[x][unc.y].isPath = true;
-      graph[x][unc.y].isConnected = true;
-    }
-    inc = con.y - unc.y < 0 ? -1 : 1;
-    for(var y = unc.y; y != con.y; y += inc) {
-      graph[con.x][y].isPath = true;
-      graph[con.x][y].isConnected = true;
-    }
+  for(var y = unc.y; y != con.y; y += inc) {
+    graph[unc.x][y].isPath = true;
+    graph[unc.x][y].isConnected = true;
+  }
 
+  inc = con.x - unc.x < 0 ? -1 : 1;
+  for(var x = unc.x; x != con.x; x += inc) {
+    graph[x][con.y].isPath = true;
+    graph[x][con.y].isConnected = true;
+  }
+}
+
+/* Other way around...
+ */
+function connectFromX(graph, unc, con) {
+  var inc = con.x - unc.x < 0 ? -1 : 1;
+  for(var x = unc.x; x != con.x; x += inc) {
+    graph[x][unc.y].isPath = true;
+    graph[x][unc.y].isConnected = true;
+  }
+  inc = con.y - unc.y < 0 ? -1 : 1;
+  for(var y = unc.y; y != con.y; y += inc) {
+    graph[con.x][y].isPath = true;
+    graph[con.x][y].isConnected = true;
   }
 }
 
 module.exports = function(width, height) {
+
   // The basic idea for this algorithm is to generate random points and then to
   // join them together.
   var graph = genRandNodes(width, height);

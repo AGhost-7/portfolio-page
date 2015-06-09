@@ -74,7 +74,7 @@ module.exports = {
       hPushCap = y < (graph[0].length - y) ? graph[0].length - y : y
       pushCap = wPushCap < hPushCap ? hPushCap : wPushCap;
 
-    for(push = 0; push < pushCap; push++) {
+    for(push = 0; push <= pushCap; push++) {
       // crosspoints = [xP; y], [xN; y], [x; yP], [x; yN]
       xP = x + push;
       yP = y + push;
@@ -143,6 +143,28 @@ function Point(x, y, isPath){
  */
 function randBool() { return (Math.random() * 2) >= 1 }
 
+// function genRandNodes_2(width, height, min, max) {
+//   var min = min ? min : Math.floor(width * height / 15) + 1;
+//   var max = max ? max : Math.floor(width * height / 14) + 1;
+//   var points = min + Math.floor(Math.random() * (max - min + 1));
+//
+//   var graph = [], nodes = [];
+//   var x, y;
+//   while(points > 0) {
+//     x = Math.floor(Math.random() * width);
+//     y = Math.floor(Math.random() * height);
+//     if(!graph[x] || !graph[x][y]) {
+//       points -= 1;
+//       graph[x] = graph[x] || [];
+//       graph[x][y] = graph[x][y] = true;
+//       nodes.push({x: x, y: y});
+//     }
+//   }
+//
+//   return nodes;
+// }
+
+
 
 /* Generates a 2 dimensional unsigned int array with random points!
  * @min is the minimum number of points.
@@ -175,7 +197,6 @@ function genRandNodes(width, height, min, max) {
 /* Find a point which is unconnected. x and y is the point of the portal.
  */
 function findUnconnected(graph, x, y) {
-  //console.log('findUnconnected: ', x, y)
   return dim2.findNearest(graph, x, y, function(p, x, y) {
     //console.log(p)
     return p.isNode && !p.isConnected;
@@ -194,39 +215,46 @@ function connectToConnected(graph, unc) {
 
   if(con === undefined) throw 'No connected point not found.';
 
-  if(randBool()) {
-    // from y, walk all the way up to the coordinate on the y axis, then
-    // walk to the connected node's x axis.
-    var inc = con.y - unc.y < 0 ? -1 : 1;
+  if(randBool()) connectFromY(graph, unc, con);
+  else connectFromX(graph, unc, con);
 
-    for(var y = unc.y; y != con.y; y += inc) {
-      graph[unc.x][y].isPath = true;
-      graph[unc.x][y].isConnected = true;
-    }
+}
 
-    inc = con.x - unc.x < 0 ? -1 : 1;
-    for(var x = unc.x; x != con.x; x += inc) {
-      graph[x][con.y].isPath = true;
-      graph[x][con.y].isConnected = true;
-    }
+/* from y, walk all the way up to the coordinate on the y axis, then
+ * walk to the connected node's x axis.
+ */
+function connectFromY(graph, unc, con) {
+  var inc = con.y - unc.y < 0 ? -1 : 1;
 
-  } else {
-    // other way around...
-    var inc = con.x - unc.x < 0 ? -1 : 1;
-    for(var x = unc.x; x != con.x; x += inc) {
-      graph[x][unc.y].isPath = true;
-      graph[x][unc.y].isConnected = true;
-    }
-    inc = con.y - unc.y < 0 ? -1 : 1;
-    for(var y = unc.y; y != con.y; y += inc) {
-      graph[con.x][y].isPath = true;
-      graph[con.x][y].isConnected = true;
-    }
+  for(var y = unc.y; y != con.y; y += inc) {
+    graph[unc.x][y].isPath = true;
+    graph[unc.x][y].isConnected = true;
+  }
 
+  inc = con.x - unc.x < 0 ? -1 : 1;
+  for(var x = unc.x; x != con.x; x += inc) {
+    graph[x][con.y].isPath = true;
+    graph[x][con.y].isConnected = true;
+  }
+}
+
+/* Other way around...
+ */
+function connectFromX(graph, unc, con) {
+  var inc = con.x - unc.x < 0 ? -1 : 1;
+  for(var x = unc.x; x != con.x; x += inc) {
+    graph[x][unc.y].isPath = true;
+    graph[x][unc.y].isConnected = true;
+  }
+  inc = con.y - unc.y < 0 ? -1 : 1;
+  for(var y = unc.y; y != con.y; y += inc) {
+    graph[con.x][y].isPath = true;
+    graph[con.x][y].isConnected = true;
   }
 }
 
 module.exports = function(width, height) {
+
   // The basic idea for this algorithm is to generate random points and then to
   // join them together.
   var graph = genRandNodes(width, height);
@@ -280,6 +308,27 @@ var
   canvas = document.querySelector('canvas'),
   ctx = canvas.getContext('2d');
 
+var imageSources = {
+  down: 'assets/ghost_down.png',
+  up: 'assets/ghost_up.png',
+  left: 'assets/ghost_left.png',
+  right: 'assets/ghost_right.png'
+};
+
+var ghost = {};
+var imagesLoaded = 0;
+for(var key in imageSources) {
+  ghost[key] = new Image;
+  ghost[key].src = imageSources[key];
+  ghost[key].onload = function() {
+    imagesLoaded++;
+    if(imagesLoaded === 4) {
+      resize();
+      requestAnimationFrame(draw);
+    }
+  };
+}
+
 function resize(){
   var panelY = (window.innerHeight - panel.clientHeight) / 2,
     panelX = (window.innerWidth - panel.clientWidth) / 2;
@@ -293,12 +342,6 @@ function resize(){
   panel.style.top = panelY + 'px';
   panel.style.left = panelX;
 }
-
-ghost.src = 'assets/ghost-sm.png';
-ghost.onload = function(){
-  resize();
-  requestAnimationFrame(draw);
-};
 
 window.onkeydown = function(ev){
   var key = ev.which || ev.keyCode,
@@ -334,6 +377,19 @@ function getDirection(keysPressed){
   return dir;
 }
 
+var lastGhost = ghost.down;
+function getGhostImage(direction) {
+  var res;
+  if(direction.x === 1) res = ghost.right;
+  else if(direction.x === -1) res = ghost.left;
+  else if(direction.y === 1) res = ghost.down;
+  else if(direction.y === -1) res = ghost.up;
+  else res = lastGhost;
+
+  lastGhost = res;
+  return res;
+}
+
 window.onresize = resize;
 
 function draw(){
@@ -343,7 +399,7 @@ function draw(){
   drawMap(ctx, map);
 
   var millis = Date.now();
-  var millisDiff = millis - lastMillis;
+  var millisDiff = Math.floor((millis - lastMillis) / 3);
 
   pointer.x += currentDirection.x * millisDiff;
   pointer.y += currentDirection.y * millisDiff;
@@ -351,9 +407,15 @@ function draw(){
   var modulo = Math.floor((millis % 2000) / 50);
   var floatOffset = modulo > 20 ? 20 - (modulo - 20) : modulo;
 
+  var ghost = getGhostImage(currentDirection);
 
-
-  ctx.drawImage(ghost, pointer.x, pointer.y + floatOffset, ghost.width * 0.08, ghost.height * 0.08);
+  ctx.drawImage(
+      ghost,
+      pointer.x,
+      pointer.y + floatOffset,
+      ghost.width * 0.4,
+      ghost.height * 0.4
+      );
 
   lastMillis = millis;
 
@@ -371,8 +433,8 @@ function drawMap(ctx, graph){
 
   dim2.forEach(graph, function(point, x, y) {
     if(point.isPath) {
-      if(point.isNode)
-        ctx.fillStyle = 'grey';
+      if(point.isNode && !point.isConnected)
+        ctx.fillStyle = 'red';
       else
         ctx.fillStyle = 'grey';
       ctx.fillRect(x * xM, y * yM, xM, yM);

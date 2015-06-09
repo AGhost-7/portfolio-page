@@ -25,6 +25,27 @@ var
   canvas = document.querySelector('canvas'),
   ctx = canvas.getContext('2d');
 
+var imageSources = {
+  down: 'assets/ghost_down.png',
+  up: 'assets/ghost_up.png',
+  left: 'assets/ghost_left.png',
+  right: 'assets/ghost_right.png'
+};
+
+var ghost = {};
+var imagesLoaded = 0;
+for(var key in imageSources) {
+  ghost[key] = new Image;
+  ghost[key].src = imageSources[key];
+  ghost[key].onload = function() {
+    imagesLoaded++;
+    if(imagesLoaded === 4) {
+      resize();
+      requestAnimationFrame(draw);
+    }
+  };
+}
+
 function resize(){
   var panelY = (window.innerHeight - panel.clientHeight) / 2,
     panelX = (window.innerWidth - panel.clientWidth) / 2;
@@ -38,12 +59,6 @@ function resize(){
   panel.style.top = panelY + 'px';
   panel.style.left = panelX;
 }
-
-ghost.src = 'assets/ghost-sm.png';
-ghost.onload = function(){
-  resize();
-  requestAnimationFrame(draw);
-};
 
 window.onkeydown = function(ev){
   var key = ev.which || ev.keyCode,
@@ -79,6 +94,19 @@ function getDirection(keysPressed){
   return dir;
 }
 
+var lastGhost = ghost.down;
+function getGhostImage(direction) {
+  var res;
+  if(direction.x === 1) res = ghost.right;
+  else if(direction.x === -1) res = ghost.left;
+  else if(direction.y === 1) res = ghost.down;
+  else if(direction.y === -1) res = ghost.up;
+  else res = lastGhost;
+
+  lastGhost = res;
+  return res;
+}
+
 window.onresize = resize;
 
 function draw(){
@@ -88,7 +116,7 @@ function draw(){
   drawMap(ctx, map);
 
   var millis = Date.now();
-  var millisDiff = millis - lastMillis;
+  var millisDiff = Math.floor((millis - lastMillis) / 3);
 
   pointer.x += currentDirection.x * millisDiff;
   pointer.y += currentDirection.y * millisDiff;
@@ -96,9 +124,15 @@ function draw(){
   var modulo = Math.floor((millis % 2000) / 50);
   var floatOffset = modulo > 20 ? 20 - (modulo - 20) : modulo;
 
+  var ghost = getGhostImage(currentDirection);
 
-
-  ctx.drawImage(ghost, pointer.x, pointer.y + floatOffset, ghost.width * 0.08, ghost.height * 0.08);
+  ctx.drawImage(
+      ghost,
+      pointer.x,
+      pointer.y + floatOffset,
+      ghost.width * 0.4,
+      ghost.height * 0.4
+      );
 
   lastMillis = millis;
 
@@ -116,8 +150,8 @@ function drawMap(ctx, graph){
 
   dim2.forEach(graph, function(point, x, y) {
     if(point.isPath) {
-      if(point.isNode)
-        ctx.fillStyle = 'grey';
+      if(point.isNode && !point.isConnected)
+        ctx.fillStyle = 'red';
       else
         ctx.fillStyle = 'grey';
       ctx.fillRect(x * xM, y * yM, xM, yM);
