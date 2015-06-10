@@ -17,7 +17,7 @@ if(window.requestAnimationFrame === undefined) {
 
 var
   pointer = undefined,
-  currentDirection = { x: 0, y: 0 },
+  direction = { x: 0, y: 0 },
   lastMillis = Date.now(),
   keysPressed = [],
   panel = document.getElementById('panel'),
@@ -26,6 +26,8 @@ var
   ctx = canvas.getContext('2d'),
   closeBtn = document.getElementById('close-btn');
 
+var floor = Math.floor;
+
 closeBtn.onclick = function() {
   document.getElementById('panel').style.visibility = 'hidden';
 };
@@ -33,7 +35,7 @@ closeBtn.onclick = function() {
 ghost.onload = function() {
   resize();
   initializeMap();
-  requestAnimationFrame(draw);
+  requestAnimationFrame(updateLoop);
 };
 
 window.onkeydown = function(ev){
@@ -42,7 +44,7 @@ window.onkeydown = function(ev){
 
   if(index == -1) {
     keysPressed.push(key);
-    currentDirection = getDirection(keysPressed);
+    direction = getDirection(keysPressed);
   }
 };
 
@@ -51,7 +53,7 @@ window.onkeyup = function(ev){
     index = keysPressed.indexOf(key);
   if(index > -1){
     keysPressed.splice(index, 1);
-    currentDirection = getDirection(keysPressed);
+    direction = getDirection(keysPressed);
   }
 };
 
@@ -67,8 +69,8 @@ function initializeMap() {
   });
 
   pointer = {
-    x: Math.floor(canvas.width / map.length) * startPoint.x,
-    y: Math.floor(canvas.height / map[0].length) * startPoint.y
+    x: floor(canvas.width / map.length) * startPoint.x,
+    y: floor(canvas.height / map[0].length) * startPoint.y
   };
 
 }
@@ -88,11 +90,14 @@ function resize(){
 }
 
 function keyPressed(key){
-  return keysPressed.indexOf(key) > -1
+  return keysPressed.indexOf(key) > -1;
 }
 
+/* Returns the direction the ghost is going based on the keys the user is
+ * pressing.
+ */
 function getDirection(keysPressed){
-  var dir = {x: 0, y: 0};
+  var dir = { x: 0, y: 0 };
 
   if(keyPressed(87) || keyPressed(38)) dir.y -= 1;
   if(keyPressed(40)	|| keyPressed(83)) dir.y += 1;
@@ -115,50 +120,82 @@ function getGameStatus(p, map) {
     { x: p.x, y: p.y + ghost.height },
     { x: p.x + ghost.width, y: p.y + ghost.height }
   ];
-  var point;
+
+  var tileWidth = floor(canvas.width / map.length);
+  var tileHeight = floor(canvas.height / map[0].length);
+  var point, x, y;
+
   for(var i = 0; i < tests.length; i++) {
-    point = map[Math.floor(tests[i].x / 55)][Math.floor(tests[i].y / 55)];
-    if(point.isPortal) return 'won';
-    else if(!point.isPath) return 'dead';
+    x = floor(tests[i].x / tileWidth);
+    y = floor(tests[i].y / tileHeight);
+    if(map[x] === undefined) return 'dead';
+    else {
+      point = map[x][y];
+      if(point === undefined) return 'dead';
+      else if(point.isPortal) return 'won';
+      else if(!point.isPath) return 'dead';
+    }
+
   }
-  return 'ok';
+
+  return 'alive';
 }
 
-function draw(){
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+/* Determines the new position based on the keys currently held down.
+ * @pointer is the current x/y coordinate of the character.
+ * @dir is the x/y positional modifiers based on the keys being held down.
+ */
+function getGhostPosition(millis, lastMillis, pointer, dir) {
+  var millisDiff = floor((millis - lastMillis) / 6);
+  return {
+    x: pointer.x + (dir.x * millisDiff),
+    y: pointer.y + (dir.y * millisDiff)
+  };
+}
 
-  drawMap(ctx, map);
+/* The position derived from the fact that the ghost character is floating, and
+ * thus goes up and down over time.
+ */
+function floatOffseted(p, millis) {
+  var modulo = floor((millis % 2000) / 80);
+  var floatOffset = modulo > 12 ? 12 - (modulo - 12) : modulo;
+  return { x: p.x, y: p.y + floatOffset };
+}
+
+function updateLoop() {
+
+  //ctx.fillStyle = 'black';
+  //ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
 
   var millis = Date.now();
-  var millisDiff = Math.floor((millis - lastMillis) / 6);
 
-  pointer.x += currentDirection.x * millisDiff;
-  pointer.y += currentDirection.y * millisDiff;
+  var newP = getGhostPosition(millis, lastMillis, pointer, direction);
+  var floatP = floatOffseted(newP, millis);
+  var status = getGameStatus(floatP, map);
 
-  var status = getGameStatus(pointer, map);
   if(status == 'won') {
     initializeMap();
-    draw();
+    updateLoop();
     return;
   } else if(status == 'dead') {
     throw 'dead...'
   }
 
-  var modulo = Math.floor((millis % 2000) / 80);
-  var floatOffset = modulo > 12 ? 12 - (modulo - 12) : modulo;
+  drawMap(ctx, map);
 
   ctx.drawImage(
-      ghost.fromDirection(currentDirection),
-      pointer.x,
-      pointer.y + floatOffset,
+      ghost.fromDirection(direction),
+      floatP.x,
+      floatP.y,
       ghost.width,
       ghost.height
       );
 
+  pointer = newP;
   lastMillis = millis;
+  requestAnimationFrame(updateLoop);
 
-  requestAnimationFrame(draw);
 }
 
 /* Will draw the game map graph :D
@@ -166,9 +203,13 @@ function draw(){
  * draw the paths to see what I'm doing.
  */
 function drawMap(ctx, graph){
+
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
   // multiplier.
-  var xM = Math.floor(ctx.canvas.width / (graph.length)),
-    yM = Math.floor(ctx.canvas.height / (graph[0].length));
+  var xM = floor(ctx.canvas.width / (graph.length)),
+    yM = floor(ctx.canvas.height / (graph[0].length));
 
   dim2.forEach(graph, function(point, x, y) {
     if(point.isPath) {
@@ -176,11 +217,15 @@ function drawMap(ctx, graph){
         ctx.fillStyle = 'red';
       else
         ctx.fillStyle = 'grey';
-      ctx.fillRect(x * xM, y * yM, xM, yM);
+      //ctx.fillRect(x * xM, y * yM, xM, yM);
     } else if(point.isPortal) {
       ctx.fillStyle = 'blue';
 
-      ctx.fillRect(x * xM, y * yM, xM, yM);
+      //ctx.fillRect(x * xM, y * yM, xM, yM);
+    } else {
+      ctx.fillStyle = 'black';
     }
+
+    ctx.fillRect(x * xM, y * yM, xM, yM);
   });
 }
