@@ -25,37 +25,16 @@ function Point(x, y, isPath){
  */
 function randBool() { return (Math.random() * 2) >= 1 }
 
-// function genRandNodes_2(width, height, min, max) {
-//   var min = min ? min : Math.floor(width * height / 15) + 1;
-//   var max = max ? max : Math.floor(width * height / 14) + 1;
-//   var points = min + Math.floor(Math.random() * (max - min + 1));
-//
-//   var graph = [], nodes = [];
-//   var x, y;
-//   while(points > 0) {
-//     x = Math.floor(Math.random() * width);
-//     y = Math.floor(Math.random() * height);
-//     if(!graph[x] || !graph[x][y]) {
-//       points -= 1;
-//       graph[x] = graph[x] || [];
-//       graph[x][y] = graph[x][y] = true;
-//       nodes.push({x: x, y: y});
-//     }
-//   }
-//
-//   return nodes;
-// }
-
-
-
 /* Generates a 2 dimensional unsigned int array with random points!
  * @min is the minimum number of points.
  * @max is the maximum number of points.
  */
 function genRandNodes(width, height, min, max) {
-  var graph = dim2.fill(width, height, function(x, y) {
-    return new Point(x, y);
-  });
+  //var graph = new Graph(width, height);
+
+   var graph = dim2.fill(new Array(width), width, height, function(x, y) {
+     return new Point(x, y);
+   });
 
   min = min ? min : Math.floor(width * height / 15) + 1;
   max = max ? max : Math.floor(width * height / 14) + 1;
@@ -135,6 +114,8 @@ function connectFromX(graph, unc, con) {
   }
 }
 
+
+
 module.exports = function(width, height) {
 
   // The basic idea for this algorithm is to generate random points and then to
@@ -142,20 +123,17 @@ module.exports = function(width, height) {
   var graph = genRandNodes(width, height);
 
   // now I need to create the portal.
-  var x, y;
-  while(true) {
-    x = Math.floor(Math.random() * width);
-    y = Math.floor(Math.random() * height);
-    if(!graph[x][y].isPath) {
-      graph[x][y].isPortal = true;
-      break;
+  var portal = dim2.findRand(graph, function(p) {
+    if(!p.isPath) {
+      p.isPortal = true;
+      return true;
     }
-  }
+  });
 
   // find the nearest unconnected node and connect it either to the portal or the
   // nearest connected node.
   var unc;
-  while(unc = findUnconnected(graph, x, y)) {
+  while(unc = findUnconnected(graph, portal.x, portal.y)) {
     connectToConnected(graph, unc);
   }
 

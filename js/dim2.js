@@ -8,9 +8,15 @@ module.exports = {
    * @fill can be a function or some other value. Function is executed for each
    * element and its output determines the value on the array.
    */
-  fill: function(width, height, fill) {
-    var arr = new Array(width),
+  fill: function() {
+
+    var
+      arr = arguments.length > 3 ? arguments[0] : new Array(width),
+      width = arguments.length > 3 ? arguments[1] : arguments[0],
+      height = arguments.length > 3 ? arguments[2] : arguments[1],
+      fill = arguments.length > 3 ? arguments[3] : arguments[2],
       fillType = typeof fill;
+
     for(var x = 0; x < arr.length; x++) {
       arr[x] = new Array(height);
       if(fillType != 'undefined'){
@@ -55,8 +61,8 @@ module.exports = {
   },
 
   /* Find the point nearest to the given coordinate, given coordinate excluded.
-   * This function tries to find a match as fast as possible, instead of trying to
-   * be 100% correct. Returns undefined if nothing found.
+   * This function tries to find a match as fast as possible, instead of trying
+   * to be 100% correct. Returns undefined if nothing found.
    * @check is a function which takes point, x, and y parameters, returning true
    * if the point is a match.
    */
@@ -109,6 +115,20 @@ module.exports = {
             return graph[xCheck][yCheck];
           }
         }
+      }
+    }
+  },
+
+  /* Test against an element at a randomly picked position on the array. Returns
+   * the value if the test returns truthy.
+   */
+  findRand: function(arr, check) {
+    var x, y;
+    while(true) {
+      x = Math.floor(Math.random() * arr.length);
+      y = Math.floor(Math.random() * arr[0].length);
+      if(check(arr[x][y])) {
+        return arr[x][y];
       }
     }
   }
